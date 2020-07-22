@@ -1,0 +1,125 @@
+BREAST CANCER DETECTION USING SUPPORT VECTOR MACHINES
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+from sklearn.datasets import load_breast_cancer
+cancer=load_breast_cancer()
+cancer.keys()
+dict_keys(['data', 'target', 'target_names', 'DESCR', 'feature_names', 'filename'])
+cancer['data']
+array([[1.799e+01, 1.038e+01, 1.228e+02, ..., 2.654e-01, 4.601e-01,
+        1.189e-01],
+       [2.057e+01, 1.777e+01, 1.329e+02, ..., 1.860e-01, 2.750e-01,
+        8.902e-02],
+       [1.969e+01, 2.125e+01, 1.300e+02, ..., 2.430e-01, 3.613e-01,
+        8.758e-02],
+       ...,
+       [1.660e+01, 2.808e+01, 1.083e+02, ..., 1.418e-01, 2.218e-01,
+        7.820e-02],
+       [2.060e+01, 2.933e+01, 1.401e+02, ..., 2.650e-01, 4.087e-01,
+        1.240e-01],
+       [7.760e+00, 2.454e+01, 4.792e+01, ..., 0.000e+00, 2.871e-01,
+        7.039e-02]])
+cancer['feature_names']
+array(['mean radius', 'mean texture', 'mean perimeter', 'mean area',
+       'mean smoothness', 'mean compactness', 'mean concavity',
+       'mean concave points', 'mean symmetry', 'mean fractal dimension',
+       'radius error', 'texture error', 'perimeter error', 'area error',
+       'smoothness error', 'compactness error', 'concavity error',
+       'concave points error', 'symmetry error',
+       'fractal dimension error', 'worst radius', 'worst texture',
+       'worst perimeter', 'worst area', 'worst smoothness',
+       'worst compactness', 'worst concavity', 'worst concave points',
+       'worst symmetry', 'worst fractal dimension'], dtype='<U23')
+# create datafrmae
+df = pd.DataFrame(np.c_[cancer['data'],cancer['target']],
+             columns = np.append(cancer['feature_names'], ['target']))
+df.head()
+mean radius	mean texture	mean perimeter	mean area	mean smoothness	mean compactness	mean concavity	mean concave points	mean symmetry	mean fractal dimension	...	worst texture	worst perimeter	worst area	worst smoothness	worst compactness	worst concavity	worst concave points	worst symmetry	worst fractal dimension	target
+0	17.99	10.38	122.80	1001.0	0.11840	0.27760	0.3001	0.14710	0.2419	0.07871	...	17.33	184.60	2019.0	0.1622	0.6656	0.7119	0.2654	0.4601	0.11890	0.0
+1	20.57	17.77	132.90	1326.0	0.08474	0.07864	0.0869	0.07017	0.1812	0.05667	...	23.41	158.80	1956.0	0.1238	0.1866	0.2416	0.1860	0.2750	0.08902	0.0
+2	19.69	21.25	130.00	1203.0	0.10960	0.15990	0.1974	0.12790	0.2069	0.05999	...	25.53	152.50	1709.0	0.1444	0.4245	0.4504	0.2430	0.3613	0.08758	0.0
+3	11.42	20.38	77.58	386.1	0.14250	0.28390	0.2414	0.10520	0.2597	0.09744	...	26.50	98.87	567.7	0.2098	0.8663	0.6869	0.2575	0.6638	0.17300	0.0
+4	20.29	14.34	135.10	1297.0	0.10030	0.13280	0.1980	0.10430	0.1809	0.05883	...	16.67	152.20	1575.0	0.1374	0.2050	0.4000	0.1625	0.2364	0.07678	0.0
+5 rows × 31 columns
+
+df['target']
+0      0.0
+1      0.0
+2      0.0
+3      0.0
+4      0.0
+      ... 
+564    0.0
+565    0.0
+566    0.0
+567    0.0
+568    1.0
+Name: target, Length: 569, dtype: float64
+sns.countplot(df['target'])
+<matplotlib.axes._subplots.AxesSubplot at 0x2cd614a0688>
+
+# pair plot of sample feature
+sns.pairplot(df, hue = 'target', 
+             vars = ['mean radius', 'mean texture', 'mean perimeter', 'mean area', 'mean smoothness'] )
+<seaborn.axisgrid.PairGrid at 0x2cd5de7bd08>
+
+plt.figure(figsize=(10,6))
+sns.heatmap(df)
+<matplotlib.axes._subplots.AxesSubplot at 0x2cd61290d48>
+
+​
+X=df.drop(['target'],axis=1)
+y=df['target']
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=5)
+from sklearn.preprocessing import StandardScaler
+sc=StandardScaler()
+X_train_sc=sc.fit_transform(X_train)
+X_test_sc = sc.transform(X_test)
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+#from sklearn.svm import SVC
+#svc_class=SVC()
+# Support vector classifier
+from sklearn.svm import SVC
+svc_classifier = SVC()
+svc_classifier.fit(X_train, y_train)
+y_pred_scv = svc_classifier.predict(X_test)
+accuracy_score(y_test, y_pred_scv)
+0.9385964912280702
+svc_classifier2=SVC()
+svc_classifier2.fit(X_train_sc,y_train)
+y_pred_svc_sc = svc_classifier2.predict(X_test_sc)
+accuracy_score(y_test, y_pred_svc_sc)
+0.9649122807017544
+LOGISTIC REGRESSION
+
+​
+# Logistic Regression
+from sklearn.linear_model import LogisticRegression
+lr_classifier = LogisticRegression()
+lr_classifier.fit(X_train, y_train)
+y_pred_lr = lr_classifier.predict(X_test)
+accuracy_score(y_test, y_pred_lr)
+C:\Users\Tanishka\anaconda3\lib\site-packages\sklearn\linear_model\_logistic.py:940: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  extra_warning_msg=_LOGISTIC_SOLVER_CONVERGENCE_MSG)
+0.9649122807017544
+K NEAREST NEIGHBOUR
+
+# K – Nearest Neighbor Classifier
+from sklearn.neighbors import KNeighborsClassifier
+knn_classifier = KNeighborsClassifier(n_neighbors = 5, metric = 'minkowski', p = 2)
+knn_classifier.fit(X_train, y_train)
+y_pred_knn = knn_classifier.predict(X_test)
+accuracy_score(y_test, y_pred_knn)
+0.9385964912280702
+​
